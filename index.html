@@ -1,0 +1,37 @@
+<!doctype html>
+	<head>
+		<meta charset="UTF8">
+		<title>Count Down</title>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="./css/main.css">
+	</head>
+	<body>
+
+		<header>
+			<section>
+					<div id="input">
+						<div id="wrong">
+							<strong>CAUTION!</strong> Incorrect Password - security notified
+						</div>
+
+						<label for="password">Secure Password</label>
+						<input type="password" id='password'  value='' />
+						<button>DISCONNECT</button>
+					</div>
+					<div id="success">
+						Region Disconnected
+					</div>
+			</section>
+			<div class="toggle"></div>
+		</header>
+
+		<div class="main-wrapper">
+			<section id="counter">00:00</section>
+		</div>
+
+		<script type="text/javascript" src="http://10.10.10.176:3001/socket.io/socket.io.js"></script>
+		<script type="text/javascript" src="./js/jquery-3.1.1.min.js"></script>
+		<script type="text/javascript" src="./js/app.js"></script>
+	</body>
+</html>
