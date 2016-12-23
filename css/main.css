@@ -31,9 +31,10 @@ header {
 }
 
 header > section {
-	display: flex;        
+	display: flex;
 	justify-content: center;
-	align-items: center;  
+	align-items: center;
+	width: 100%;
 }
 
 header > section > div {
@@ -78,7 +79,7 @@ header input:focus {
 header button {
 	margin-top: 10px;
 	padding: 25px 0;
-	display: block; 
+	display: block;
 	width: 26%;
 	font-size: 1.5em;
 	border: 0;
@@ -103,7 +104,7 @@ header button:focus {
 	text-align: center;
 	font-size: 1.25em;
 	box-shadow: 0 0 10px rgba(0,0,0, .5);
-	
+
 	-webkit-animation: glow 2s infinite;
 	-moz-animation: glow 2s infinite;
 }
@@ -120,7 +121,7 @@ header .toggle {
 }
 
 .main-wrapper {
-	z-index: 1;
+	z-index: 0;
 	position: absolute;
 	display: flex;
 	left: 0;
@@ -130,18 +131,31 @@ header .toggle {
 }
 
 #counter {
-	display: flex;           
-	justify-content: center; 
-	align-items: center;    
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	min-width: 0;
 	width: 100%;
 	font-size: 46em;
 	text-align: center;
-	font-family: 'clock', sans-serif;
+	font-family: 'clock' !important;
 	color: #dd0000;
 	text-shadow: 0 0 24px rgba(223, 62, 62, 0.5);
 	-webkit-user-select: none;
 	cursor: pointer;
+}
+
+#matrix {
+	display: none;
+	background-color: #000;
+	position: absolute;
+	margin: 0;
+	padding: 0;
+	z-index: 1;
+}
+
+.pulse {
+    -webkit-animation: pulse .5s infinite alternate;
 }
 
 @media screen and (max-width: 1920px) { #counter { font-size: 40em; }}
@@ -177,4 +191,16 @@ header .toggle {
     0% { opacity: 1; background-color: #aa0000; }
     50% { opacity: .5; background-color: #770000; }
     100% { opacity: 1; background-color: #aa0000; }
+}
+
+@keyframes pulse {
+	to { text-shadow: 0 0 20px #00FF00; }
+}
+
+@-webkit-keyframes pulse {
+    to { text-shadow: 0 0 20px #00FF00; }
+}
+
+@-moz-keyframes pulse {
+    to { text-shadow: 0 0 20px #00FF00; }
 }
