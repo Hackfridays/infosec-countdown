@@ -3,7 +3,8 @@
 function init() {
   var socket = io.connect("http://10.10.10.176:3001");
   var request_id = 0;
-  var counterTime = 45; // in minutes
+  var counterTime;
+  var waitTime = 2000; // time to wait before showing screen again
   var timeinterval;
   var animationFrameID;
   var deadline = new Date();
@@ -11,25 +12,27 @@ function init() {
 
   $('.main-wrapper, div.toggle, #matrix').on('click', function (){ if(start) $('header').toggle(); });
   $('button').on('click', function (){ validatePassword($('#password').val()); });
-  $("#wrong, header, #success").hide();
+  $(".wrongBG, header, #success, .block").hide();
 
   function validatePassword(password) {
     socket.emit('map:unlock', {"id": request_id, "password": password});
+    $(".block").fadeIn();
   }
 
   function startCountdown(time) {
-    deadline = new Date(new Date(time).getTime() + counterTime*60*1000);
+    resetCountdown();
+    deadline = new Date(new Date(time).getTime() + counterTime);
     console.log(deadline);
     updateClock();
     timeinterval = setInterval(updateClock, 1000);
   }
 
   function resetCountdown() {
-    $("#wrong, header, #success, #matrix").hide();
+    $(".wrongBG, header, #success, #matrix").hide();
     if($('#input').css('display') == 'none') $('#input').toggle();
-    window.cancelAnimationFrame(animationFrameID);
-    clearInterval(timeinterval);
-    deadline = new Date(new Date().getTime() + 0*60*1000);
+    if(animationFrameID) window.cancelAnimationFrame(animationFrameID);
+    if(timeinterval) clearInterval(timeinterval);
+    deadline = new Date();
     updateClock();
   }
 
@@ -57,7 +60,7 @@ function init() {
     var t = getTimeRemaining();
     $('#counter').html(zeroPad(t.minutes, 2) + ':' + zeroPad(t.seconds, 2));
     if (t.total <= 0) {
-      clearInterval(timeinterval);
+      if(timeinterval) clearInterval(timeinterval);
     }
   }
 
@@ -85,6 +88,15 @@ function init() {
 
     //drawing the characters
     function draw() {
+      window.onresize = function() {
+        c.height = window.innerHeight;
+        c.width = window.innerWidth;
+        font_size = 10;
+        columns = c.width/font_size;
+        drops = [];
+        for(var x = 0; x < columns; x++)
+          drops[x] = 1;
+      }
       //Black BG for the canvas
       //translucent BG to show trail
       ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
@@ -114,17 +126,24 @@ function init() {
 
   socket.on('user:connected', function(data) {
     console.log(data);
-    request_id = data.id; // localStorage.getItem("request_id") || data.id;
+    request_id = localStorage.getItem("request_id") || data.id;
     localStorage.setItem("request_id", request_id);
     socket.emit('user:joined', {"id": request_id, "role": "user"});
   });
 
   socket.on('app:password', function(data) {
+    $(".block").fadeOut();
     if(!data.valid){
       console.log(data);
-      $("#wrong, label").toggle();
+      $(".wrongBG, #input").toggle();
 	    $('#password').val("");
-      setTimeout(function(){ $("#wrong, label").toggle(); }, 3200);
+      setTimeout(function(){ $('.wrongBG').trigger('stopRumble'); $(".wrongBG, #input").toggle(); }, waitTime);
+      $('.wrongBG').jrumble({
+      	x: 10,
+      	y: 10,
+      	rotation: 4
+      });
+      $('.wrongBG').trigger('startRumble');
     } else {
       console.log(data);
       if(!$('header').is(':visible')) $('header').toggle();
@@ -132,15 +151,16 @@ function init() {
 	    $('#password').val("");
       $("#matrix, #success").show();
       matrixAnimation();
-      clearInterval(timeinterval);
+      if(timeinterval) clearInterval(timeinterval);
     }
   });
 
   socket.on('app:start', function(data) {
     console.log(data);
-    if(data.start) {
+    if(data.start && !data.paused) {
       start = true;
-      startCountdown(data.timer);
+      counterTime = data.timer;
+      startCountdown(data.startTime);
     }
   });
 
@@ -148,6 +168,18 @@ function init() {
     console.log(data);
     start = false;
     resetCountdown();
+  });
+
+  socket.on('app:pause', function(data) {
+    console.log(data);
+    if(data.state) {
+      // start = false;
+      if(timeinterval) clearInterval(timeinterval);
+    } else {
+      // start = true;
+      counterTime = data.timer;
+      startCountdown(data.startTime);
+    }
   });
 }
 
