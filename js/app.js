@@ -1,7 +1,7 @@
 /*global io:true, $:true */
 
 function init() {
-  var socket = io.connect("http://192.168.1.101:3001");
+  var socket = io.connect("http://10.10.10.176:3001");
   var request_id = 0;
   var counterTime;
   var waitTime = 2000; // time to wait before showing screen again
@@ -14,6 +14,7 @@ function init() {
   $('.main-wrapper, div.toggle, #matrix').on('click', function (){ if(start) $('header').toggle(); });
   $('button').on('click', function (){ validatePassword($('#password').val()); });
   $(".wrongBG, header, #success, .block").hide();
+  $('#password').keyboard();
 
   function validatePassword(password) {
     socket.emit('map:unlock', {"id": request_id, "password": password});
