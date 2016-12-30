@@ -1,13 +1,14 @@
 /*global io:true, $:true */
 
 function init() {
-  var socket = io.connect("http://10.10.10.176:3001");
+  var socket = io.connect("http://192.168.1.101:3001");
   var request_id = 0;
   var counterTime;
   var waitTime = 2000; // time to wait before showing screen again
   var timeinterval;
   var animationFrameID;
   var deadline = new Date();
+  var timeDiff = 0;
   var start = false;
 
   $('.main-wrapper, div.toggle, #matrix').on('click', function (){ if(start) $('header').toggle(); });
@@ -21,7 +22,7 @@ function init() {
 
   function startCountdown(time) {
     resetCountdown();
-    deadline = new Date(new Date(time).getTime() + counterTime);
+    deadline = new Date(new Date(time).getTime() + counterTime - timeDiff);
     console.log(deadline);
     updateClock();
     timeinterval = setInterval(updateClock, 1000);
@@ -125,10 +126,21 @@ function init() {
   }
 
   socket.on('user:connected', function(data) {
-    console.log(data);
+    console.log('user:connected', data);
     request_id = localStorage.getItem("request_id") || data.id;
     localStorage.setItem("request_id", request_id);
-    socket.emit('user:joined', {"id": request_id, "role": "user"});
+    socket.emit('user:joined', {"id": request_id, "role": "user", "date": new Date().getTime(), "newid": data.id});
+  });
+
+  socket.on('user:timediff', function(data) {
+    console.log('user:timediff', data);
+    timeDiff = data.timediff;
+  });
+
+  socket.on('user:updateId', function(data) {
+    console.log('user:updateId', data);
+    request_id = data.id;
+    localStorage.setItem("request_id", request_id);
   });
 
   socket.on('app:password', function(data) {

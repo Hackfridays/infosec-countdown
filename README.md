@@ -5,7 +5,7 @@
 
 ## Run
 
-Edit the socket server path in `js/app.js` file.
+Edit the socket server path in `js/app.js` file and also the `index.html`.
 
 ```bash
 $ ./run
