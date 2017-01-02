@@ -1,7 +1,7 @@
 /*global io:true, $:true */
 
 function init() {
-  var socket = io.connect("http://10.10.10.176:3001");
+  var socket = io.connect("http://192.168.1.102:3001");
   var request_id = 0;
   var counterTime;
   var waitTime = 2000; // time to wait before showing screen again
